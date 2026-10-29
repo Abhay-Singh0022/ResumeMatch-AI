@@ -1,17 +1,12 @@
-# Use official OpenJDK image as base
-FROM eclipse-temurin:17-jdk-alpine
-
-# Set working directory inside container
+# Stage 1: Build the application using official Maven image
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
-
-# Copy all project files into container
 COPY . .
+RUN mvn clean package -DskipTests
 
-# Give execution permission to mvnw
-RUN chmod +x mvnw
-
-# Build the application
-RUN ./mvnw clean package -DskipTests
-
-# Run the jar file
-ENTRYPOINT ["java", "-jar", "target/*.jar"]
+# Stage 2: Run the application
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
