@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy all project files into container
 COPY . .
 
+# Give execution permission to mvnw
+RUN chmod +x mvnw
+
 # Build the application
 RUN ./mvnw clean package -DskipTests
 
